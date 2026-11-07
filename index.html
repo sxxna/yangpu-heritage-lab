@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f8efdf">
+<title>非遗智能工坊</title>
+<link rel="stylesheet" href="style.css">
+<script defer src="app.js"></script>
+</head>
+<body>
+<header class="site-header wrap">
+ <a class="brand" href="#"><span class="seal" aria-hidden="true">非遗</span><span>杨浦 · 非遗微课</span></a>
+ <span class="project">杨浦区中小学生非遗精品微课资源建设项目</span>
+</header>
+<main class="wrap">
+ <section class="hero" aria-labelledby="title">
+  <div class="eyebrow"><i></i> 互动课堂 <span> / </span> 上海剪纸</div>
+  <h1 id="title">非遗智能<span>工坊</span></h1>
+  <p>用一句话描绘上海地标，再试着把参考图改成一幅剪得出来的作品。</p>
+ </section>
+ <nav class="tabs" aria-label="课堂板块" role="tablist">
+  <button type="button" role="tab" id="tab-one" aria-controls="one" aria-selected="true" data-panel="one"><span>01</span> 体验生成式 AI</button>
+  <button type="button" role="tab" id="tab-two" aria-controls="two" aria-selected="false" tabindex="-1" data-panel="two"><span>02</span> 从构思到剪纸作品</button>
+ </nav>
+ <section class="workshop" id="one" role="tabpanel" aria-labelledby="tab-one">
+  <header class="panel-head"><div><small>01 / 输入与生成</small><h2>你想让 AI 生成什么？</h2></div><span class="mode"><i></i> 课堂模拟</span></header>
+  <div class="workspace">
+   <div class="control">
+    <p>用一句话说明要画的地标、风格，以及需要搭配的文字。</p>
+    <form id="first-form">
+     <label for="first-prompt">你的生成要求</label>
+     <textarea id="first-prompt" maxlength="180" required rows="3" placeholder="例如：画一幅上海地标剪纸风格图…"></textarea>
+     <div class="actions"><button class="primary">发送并生成 <span aria-hidden="true">↗</span></button><button type="button" class="quiet" id="first-example">填入示例</button></div>
+    </form>
+   </div>
+   <div class="output">
+    <div class="output-bar"><strong>生成结果</strong><span>图像与作品介绍</span></div>
+    <div id="first-result" class="result" aria-live="polite"><div class="empty"><span class="frame-icon" aria-hidden="true"></span><strong>等待生成</strong><span>发送要求后，在这里查看作品。</span></div></div>
+   </div>
+  </div>
+  <footer class="panel-foot"><p>观察地标、风格和文字是否都符合你的要求。</p><button class="quiet" type="button" data-open="two">进入剪纸实践 <span aria-hidden="true">→</span></button></footer>
+ </section>
+ <section class="workshop" id="two" role="tabpanel" aria-labelledby="tab-two" hidden>
+  <header class="panel-head"><div><small>02 / 对话与修改</small><h2>从 AI 构思到剪纸作品</h2></div><span class="mode"><i></i> 课堂模拟</span></header>
+  <ol class="steps" aria-label="剪纸实践步骤"><li aria-current="step">01 生成参考图</li><li>02 发现问题，再调整</li><li>03 完整作品</li></ol>
+  <div class="workspace">
+   <div class="control">
+    <p>先画一张参考图，再检查连接处。找出细弱的位置，通过追问加宽连接。</p>
+    <h3>对话记录</h3><div id="chat-log" class="chat" role="log" aria-label="剪纸对话记录"></div>
+    <form id="chat-form">
+     <label for="chat-prompt">输入要求或修改建议</label>
+     <textarea id="chat-prompt" rows="2" maxlength="180" required placeholder="描述你想做的剪纸…"></textarea>
+     <div class="actions"><button class="primary">发送 <span aria-hidden="true">↗</span></button><button type="button" class="quiet" id="chat-example">填入首轮示例</button></div>
+    </form>
+   </div>
+   <div class="output">
+    <div class="output-bar"><strong id="chat-title">AI 参考图</strong><span>建筑剪纸 · 预览</span></div>
+    <div id="chat-result" class="result" aria-live="polite"><div class="empty"><span class="frame-icon" aria-hidden="true"></span><strong>等待第一张参考图</strong><span>在对话框里描述你的剪纸构思。</span></div></div>
+    <div class="result-actions" id="result-actions" hidden><button type="button" class="quiet" id="inspect">检查连接</button><button type="button" class="quiet" id="compare" hidden>看初稿</button><a class="quiet" id="download" download="剪纸作品.svg" hidden>下载作品</a></div>
+   </div>
+  </div>
+  <footer class="panel-foot"><p id="observation">观察重点 · 连接细易断 → 补充修改要求 → 加宽连接，完成验证</p><button type="button" class="quiet" id="reset">重新开始</button></footer>
+ </section>
+ <footer class="site-footer"><span>杨浦 · 非遗微课</span><span>示例素材与规则绘图用于课堂模拟</span></footer>
+</main>
+</body>
+</html>
