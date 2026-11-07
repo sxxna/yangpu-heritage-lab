@@ -16,13 +16,20 @@ for (const tab of tabs) {
   tab.addEventListener("keydown", (event) => {
     if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
     event.preventDefault();
-    const target = event.key === "Home" ? tabs[0] : event.key === "End" ? tabs.at(-1) : tabs.find((item) => item !== tab);
+    const step = event.key === "ArrowLeft" ? -1 : 1;
+    const target = event.key === "Home" ? tabs[0] : event.key === "End" ? tabs.at(-1) : tabs[(tabs.indexOf(tab) + step + tabs.length) % tabs.length];
     openPanel(target.dataset.panel, true);
   });
 }
 document.querySelector("[data-open]").addEventListener("click", () => openPanel("two", true));
 
 const example = "画一幅上海地标剪纸风格图，再为它写一句介绍。";
+const cases = {
+  skyline: { title: "浦江两岸", motif: "东方明珠 · 江水波纹", asset: "assets/shanghai.jpg", prompt: example, description: "红纸上的东方明珠和外滩隔江相望，黄浦江的波纹把两岸连在一起。" },
+  bridge: { title: "长桥卧波", motif: "杨浦大桥 · 斜拉索", asset: "assets/papercut-bridge.webp", prompt: "画一幅杨浦大桥的红色剪纸，用斜拉索和波纹表现黄浦江，再写一句介绍。", description: "扇形的斜拉索呼应江面层叠的波纹，桥塔在云纹与渡船之间立起。" },
+  lane: { title: "弄堂春影", motif: "石库门 · 窗格", asset: "assets/papercut-lane.webp", prompt: "画一幅红色的上海石库门弄堂剪纸，保留门楣、窗格和灯笼，再写一句介绍。", description: "石库门居中，窗格和屋檐沿弄堂排开，门洞中的留白把视线引向深处。" },
+  magnolia: { title: "玉兰报春", motif: "白玉兰 · 燕子", asset: "assets/papercut-magnolia.webp", prompt: "画一幅上海白玉兰的红色剪纸，表现舒展的花瓣和燕子，再写一句介绍。", description: "舒展的花枝把玉兰花和燕子串成一幅图，镂空的花瓣让枝叶之间透出纸底。" }
+};
 const chatExample = "画一幅红色上海地标建筑剪纸，保留建筑轮廓、镂空窗户和江面波纹。";
 const revision = "请加宽塔底和底部两侧的连接，让剪纸更结实。";
 function fill(input, prompt) {
@@ -84,8 +91,9 @@ function empty(title, message, busy = false) {
 function showArtwork(container, design, marked = false) {
   container.innerHTML = drawArt(design, marked);
 }
+let firstWork;
 const introductions = {
-  skyline: "红纸上的东方明珠和外滩隔江相望，黄浦江的波纹把两岸连在一起。",
+  skyline: cases.skyline.description,
   bridge: "桥塔挑起斜拉索，江面的波纹把桥与两岸连在一张剪纸里。",
   bund: "钟楼与成排的镂空窗户勾勒出外滩，江水在建筑脚下缓缓流过。"
 };
@@ -98,25 +106,26 @@ get("first-form").addEventListener("submit", async (event) => {
   if (button.disabled) return;
   button.disabled = true;
   const result = get("first-result");
+  get("first-actions").hidden = true;
   result.replaceChildren(empty("正在制作剪纸图", "正在根据课堂示例匹配图样。", true));
   await pause();
   const design = artworkOptions(prompt);
-  const original = design.scene === "skyline" && design.color === "#aa2b27";
+  const caseId = /玉兰/.test(prompt) ? "magnolia" : /石库门|弄堂/.test(prompt) ? "lane"
+    : /杨浦大桥/.test(prompt) && design.color === "#aa2b27" ? "bridge"
+    : design.scene === "skyline" && design.color === "#aa2b27" ? "skyline" : null;
+  const exampleCase = caseId ? cases[caseId] : null;
+  const intro = exampleCase?.description ?? introductions[design.scene].replace("红纸", design.color === "#294d78" ? "蓝纸" : design.color === "#92551d" ? "金色纸" : "红纸");
+  firstWork = exampleCase
+    ? { caseId, title: exampleCase.title, description: intro }
+    : { design, title: { skyline: "浦江两岸", bridge: "江上长桥", bund: "外滩钟楼" }[design.scene], description: intro };
   const grid = element("div", "", "result-grid");
   const visual = element("div");
-  if (original) {
-    const image = element("img");
-    image.src = "assets/shanghai.jpg";
-    image.alt = "红色上海地标剪纸，东方明珠和外滩隔江相望";
-    visual.append(image);
-  } else {
-    showArtwork(visual, design);
-  }
+  renderWork(visual, firstWork);
   const caption = element("div");
-  const intro = introductions[design.scene].replace("红纸", design.color === "#294d78" ? "蓝纸" : design.color === "#92551d" ? "金色纸" : "红纸");
   caption.append(element("h3", "作品介绍"), element("p", intro));
   grid.append(visual, caption);
   result.replaceChildren(grid);
+  get("first-actions").hidden = false;
   button.disabled = false;
 });
 
@@ -153,6 +162,7 @@ function showChatArt() {
   get("compare").textContent = comparing ? "看修改稿" : "看初稿";
   get("compare").hidden = stage !== 2;
   get("download").hidden = stage !== 2;
+  get("save-chat").hidden = stage !== 2 || comparing;
   get("result-actions").hidden = false;
 }
 
@@ -216,4 +226,168 @@ get("reset").addEventListener("click", () => {
   get("result-actions").hidden = true;
   setStage(0);
   chatInput.focus();
+});
+
+const galleryKey = "yangpu-heritage-lab-gallery-v1";
+const storageLimit = 50;
+function validWork(work) {
+  if (!work || typeof work.id !== "string" || typeof work.title !== "string" || typeof work.description !== "string") return false;
+  if (typeof work.caseId === "string" && Object.hasOwn(cases, work.caseId)) return true;
+  const design = work.design;
+  return design && ["skyline", "bridge", "bund"].includes(design.scene)
+    && ["#aa2b27", "#294d78", "#92551d"].includes(design.color)
+    && [3, 11].includes(design.width);
+}
+function readWorks() {
+  try {
+    const records = JSON.parse(localStorage.getItem(galleryKey) ?? "[]");
+    return Array.isArray(records) ? records.filter(validWork) : [];
+  } catch {
+    return [];
+  }
+}
+function writeWorks(records) {
+  try {
+    localStorage.setItem(galleryKey, JSON.stringify(records));
+    return true;
+  } catch {
+    return false;
+  }
+}
+function renderWork(container, work, lazy = false) {
+  if (work.caseId) {
+    const image = element("img");
+    image.src = cases[work.caseId].asset;
+    image.alt = cases[work.caseId].title + "剪纸";
+    image.loading = lazy ? "lazy" : "eager";
+    container.replaceChildren(image);
+  } else {
+    showArtwork(container, work.design);
+  }
+}
+function setDownload(anchor, work) {
+  const asset = work.caseId && cases[work.caseId].asset;
+  anchor.href = asset || "data:image/svg+xml;charset=utf-8," + encodeURIComponent(drawArt(work.design));
+  const extension = asset ? asset.split(".").at(-1) : "svg";
+  anchor.download = work.title.replace(/[\\/:*?"<>|]/g, "_") + "." + extension;
+}
+function galleryButton(label, action) {
+  const button = element("button", label, "quiet");
+  button.type = "button";
+  button.addEventListener("click", action);
+  return button;
+}
+const showDialog = get("show-dialog");
+function presentWork(work) {
+  get("show-title").textContent = work.title;
+  get("show-description").textContent = work.description;
+  renderWork(get("show-art"), work);
+  setDownload(get("show-download"), work);
+  showDialog.showModal();
+}
+get("close-show").addEventListener("click", () => showDialog.close());
+
+function workCard(work, description, secondary) {
+  const card = element("article", "", "gallery-card");
+  const preview = galleryButton("", () => presentWork(work));
+  preview.className = "gallery-preview";
+  preview.setAttribute("aria-label", "展示《" + work.title + "》");
+  renderWork(preview, work, true);
+  const body = element("div", "", "gallery-card-body");
+  const actions = element("div", "", "actions");
+  actions.append(galleryButton("放大展示", () => presentWork(work)), secondary);
+  body.append(element("h4", work.title), element("p", description), actions);
+  card.append(preview, body);
+  return card;
+}
+
+let toastTimer;
+function notifyGallery(message, openGallery = false) {
+  const status = get("gallery-status");
+  status.replaceChildren(document.createTextNode(message));
+  if (openGallery) status.append(galleryButton("查看作品展", () => {
+    openPanel("gallery", true);
+    status.replaceChildren();
+  }));
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    if (!status.contains(document.activeElement)) status.replaceChildren();
+  }, 8500);
+}
+function renderSavedWorks() {
+  const works = readWorks();
+  get("saved-count").textContent = String(works.length);
+  const grid = get("saved-grid");
+  grid.replaceChildren();
+  if (!works.length) {
+    const placeholder = empty("作品展还空着", "在任一课堂板块完成作品，点击“保存到作品展”。");
+    placeholder.classList.add("gallery-empty");
+    grid.append(placeholder);
+    return;
+  }
+  for (const work of works) {
+    const remove = galleryButton("移除", () => {
+      if (!window.confirm("从作品展移除《" + work.title + "》？")) return;
+      if (!writeWorks(readWorks().filter((item) => item.id !== work.id))) {
+        notifyGallery("浏览器暂时无法更新作品展。");
+        return;
+      }
+      renderSavedWorks();
+      get("tab-gallery").focus();
+      notifyGallery("已从作品展移除。");
+    });
+    remove.setAttribute("aria-label", "移除《" + work.title + "》");
+    grid.append(workCard(work, work.description, remove));
+  }
+}
+
+for (const [caseId, info] of Object.entries(cases)) {
+  const usePrompt = galleryButton("用此提示词", () => {
+    openPanel("one");
+    fill(get("first-prompt"), info.prompt);
+  });
+  get("case-grid").append(workCard({ caseId, ...info }, info.motif, usePrompt));
+}
+renderSavedWorks();
+window.addEventListener("storage", (event) => {
+  if (event.key === galleryKey || event.key === null) renderSavedWorks();
+});
+
+let pendingWork;
+const saveDialog = get("save-dialog");
+function requestSave(work) {
+  pendingWork = work;
+  get("work-name").value = work.title;
+  get("save-error").textContent = "";
+  saveDialog.showModal();
+  get("work-name").select();
+}
+get("save-first").addEventListener("click", () => requestSave(firstWork));
+get("save-chat").addEventListener("click", () => {
+  const title = { skyline: "浦江两岸", bridge: "江上长桥", bund: "外滩钟楼" }[current.scene];
+  requestSave({ title: title + " · 修改稿", design: { ...current }, description: "完成连接加宽练习的剪纸修改稿。" });
+});
+get("cancel-save").addEventListener("click", () => saveDialog.close());
+get("save-form").addEventListener("submit", (event) => {
+  event.preventDefault();
+  const title = get("work-name").value.trim();
+  const error = get("save-error");
+  if (!title) {
+    error.textContent = "请输入作品名称。";
+    get("work-name").focus();
+    return;
+  }
+  const works = readWorks();
+  if (works.length >= storageLimit) {
+    error.textContent = "作品展已满。请移除一件作品后再保存。";
+    return;
+  }
+  const entry = { ...pendingWork, title, id: crypto.randomUUID() };
+  if (!writeWorks([entry, ...works])) {
+    error.textContent = "浏览器暂时无法保存作品。";
+    return;
+  }
+  renderSavedWorks();
+  saveDialog.close();
+  notifyGallery("《" + title + "》已保存。", true);
 });

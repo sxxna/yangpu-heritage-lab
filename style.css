@@ -10,3 +10,41 @@
 @media(max-width:760px){.wrap{width:calc(100% - 32px)}.site-header{padding-top:25px;align-items:flex-start}.project{font-size:11px;max-width:205px}.brand{font-size:12px;gap:6px}.seal{width:29px;height:29px;font-size:10px}.hero{padding:34px 0 24px}.hero p{font-size:15px;max-width:24rem}.tabs button{font-size:13px;padding:9px 8px;gap:5px}.panel-head,.panel-foot{padding:13px}.workspace{grid-template-columns:1fr;padding:0 13px 13px;gap:11px}.steps{padding:0 13px;gap:4px}.steps li{padding:6px;font-size:11px}.panel-foot p{font-size:12px}.panel-foot button{flex-shrink:0}.control{padding:13px}.site-footer{align-items:flex-start}}@media(max-width:350px){.project{padding:5px}.result-grid{grid-template-columns:1fr}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;scroll-behavior:auto!important}}
 
 body{isolation:isolate}
+
+.tabs{flex-wrap:wrap}
+.gallery-area{padding:0 26px 26px}
+.gallery-section{padding:16px 0;border-top:1px solid var(--line)}
+.gallery-section:last-child{padding-bottom:0}
+.gallery-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}
+.gallery-heading h3{font-family:"Songti SC","Noto Serif CJK SC",SimSun,serif;font-size:23px}
+.gallery-heading p,.gallery-card p,.gallery-dialog p{color:var(--muted);font-size:14px;line-height:1.55}
+.gallery-heading p{margin-top:4px}
+.gallery-tag,#saved-count{border:1px solid var(--line);border-radius:20px;background:#f7ead6;color:var(--deep);font:700 12px system-ui;padding:4px 9px;white-space:nowrap}
+.gallery-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px}
+.gallery-card{overflow:hidden;border:1px solid var(--line);border-radius:9px;background:#fffdf7;min-width:0}
+.gallery-preview{display:block;width:100%;border:0;padding:0;background:#fbedd1;aspect-ratio:3/2;overflow:hidden;border-bottom:1px solid var(--line)}
+.gallery-preview:focus-visible{outline-offset:-3px}
+.gallery-preview img,.gallery-preview svg{display:block;width:100%;height:100%;object-fit:contain;transition:transform .2s ease}
+.gallery-preview:hover img,.gallery-preview:hover svg{transform:scale(1.04)}
+.gallery-card-body{padding:11px}
+.gallery-card h4{font-size:16px;margin:0 0 3px;overflow-wrap:anywhere}
+.gallery-card p{font-size:12px;overflow-wrap:anywhere}
+.gallery-card .actions{gap:5px;margin-top:8px}
+.gallery-card .quiet{min-height:31px;padding:5px 8px;font-size:12px}
+.gallery-empty{grid-column:1/-1;border:1px dashed #d8b998;border-radius:8px;background:#fcf4e6}
+.gallery-dialog{border:1px solid var(--line);border-radius:13px;background:var(--paper);color:var(--ink);width:min(440px,calc(100% - 30px));max-height:calc(100dvh - 30px);padding:21px;box-shadow:0 12px 40px #2e1b1644}
+.gallery-dialog::backdrop{background:#291c16b8}
+.gallery-dialog h2{margin:0 0 6px;overflow-wrap:anywhere}
+.gallery-dialog input{font:inherit;color:var(--ink);width:100%;min-height:42px;padding:8px;border:1px solid #cfb898;border-radius:6px;background:#fffdf7}
+.gallery-dialog input:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+#save-error:not(:empty){margin-top:8px;color:var(--deep)}
+.show-dialog{width:min(1000px,calc(100% - 30px))}
+.show-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.show-header button{flex-shrink:0}
+.show-art{margin:12px 0}
+.show-art img,.show-art svg{display:block;width:100%;max-height:min(65dvh,680px);object-fit:contain;margin:auto;background:#fbedd1;border-radius:7px}
+.gallery-toast:not(:empty){position:fixed;z-index:3;right:16px;bottom:16px;max-width:calc(100% - 32px);display:flex;flex-wrap:wrap;align-items:center;gap:8px;background:#fffaf0;color:var(--deep);border:1px solid var(--line);border-radius:8px;padding:10px 12px;box-shadow:0 5px 20px #34211433;overflow-wrap:anywhere}
+@media(max-width:850px){.gallery-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.gallery-area{padding:0 13px 13px}}
+@media(max-width:400px){.gallery-grid{gap:8px}.gallery-card-body{padding:8px}.tabs{gap:5px}}
+@media(prefers-reduced-motion:reduce){.gallery-preview img,.gallery-preview svg{transition:none}}

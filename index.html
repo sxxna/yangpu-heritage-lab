@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#f8efdf">
 <title>非遗智能工坊</title>
-<link rel="stylesheet" href="style.css">
-<script defer src="app.js"></script>
+<link rel="stylesheet" href="style.css?v=gallery-1">
+<script defer src="app.js?v=gallery-1"></script>
 </head>
 <body>
 <header class="site-header wrap">
@@ -22,6 +22,7 @@
  <nav class="tabs" aria-label="课堂板块" role="tablist">
   <button type="button" role="tab" id="tab-one" aria-controls="one" aria-selected="true" data-panel="one"><span>01</span> 体验生成式 AI</button>
   <button type="button" role="tab" id="tab-two" aria-controls="two" aria-selected="false" tabindex="-1" data-panel="two"><span>02</span> 从构思到剪纸作品</button>
+  <button type="button" role="tab" id="tab-gallery" aria-controls="gallery" aria-selected="false" tabindex="-1" data-panel="gallery"><span>03</span> 剪纸案例与作品展</button>
  </nav>
  <section class="workshop" id="one" role="tabpanel" aria-labelledby="tab-one">
   <header class="panel-head"><div><small>01 / 输入与生成</small><h2>你想让 AI 生成什么？</h2></div><span class="mode"><i></i> 课堂模拟</span></header>
@@ -37,6 +38,7 @@
    <div class="output">
     <div class="output-bar"><strong>生成结果</strong><span>图像与作品介绍</span></div>
     <div id="first-result" class="result" aria-live="polite"><div class="empty"><span class="frame-icon" aria-hidden="true"></span><strong>等待生成</strong><span>发送要求后，在这里查看作品。</span></div></div>
+    <div class="result-actions" id="first-actions" hidden><button type="button" class="quiet" id="save-first">保存到作品展</button></div>
    </div>
   </div>
   <footer class="panel-foot"><p>观察地标、风格和文字是否都符合你的要求。</p><button class="quiet" type="button" data-open="two">进入剪纸实践 <span aria-hidden="true">→</span></button></footer>
@@ -57,12 +59,42 @@
    <div class="output">
     <div class="output-bar"><strong id="chat-title">AI 参考图</strong><span>建筑剪纸 · 预览</span></div>
     <div id="chat-result" class="result" aria-live="polite"><div class="empty"><span class="frame-icon" aria-hidden="true"></span><strong>等待第一张参考图</strong><span>在对话框里描述你的剪纸构思。</span></div></div>
-    <div class="result-actions" id="result-actions" hidden><button type="button" class="quiet" id="inspect">检查连接</button><button type="button" class="quiet" id="compare" hidden>看初稿</button><a class="quiet" id="download" download="剪纸作品.svg" hidden>下载作品</a></div>
+    <div class="result-actions" id="result-actions" hidden><button type="button" class="quiet" id="inspect">检查连接</button><button type="button" class="quiet" id="compare" hidden>看初稿</button><a class="quiet" id="download" download="剪纸作品.svg" hidden>下载作品</a><button type="button" class="quiet" id="save-chat" hidden>保存到作品展</button></div>
    </div>
   </div>
   <footer class="panel-foot"><p id="observation">观察重点 · 连接细易断 → 补充修改要求 → 加宽连接，完成验证</p><button type="button" class="quiet" id="reset">重新开始</button></footer>
  </section>
+ <section class="workshop" id="gallery" role="tabpanel" aria-labelledby="tab-gallery" hidden>
+  <header class="panel-head"><div><small>03 / 观摩与展示</small><h2>剪纸案例与作品展</h2></div><span class="mode"><i></i> 课堂作品集</span></header>
+  <div class="gallery-area">
+   <section class="gallery-section" aria-labelledby="cases-title">
+    <div class="gallery-heading"><div><h3 id="cases-title">剪纸案例</h3><p>打开案例观察留白与纹样，也可以带着示例提示词去生成。</p></div><span class="gallery-tag">灵感图册</span></div>
+    <div id="case-grid" class="gallery-grid"></div>
+   </section>
+   <section class="gallery-section" aria-labelledby="saved-title">
+    <div class="gallery-heading"><div><h3 id="saved-title">我的作品展 <span id="saved-count"></span></h3><p>作品保存在当前浏览器，可放大投屏，也可下载带走。</p></div></div>
+    <div id="saved-grid" class="gallery-grid"></div>
+   </section>
+  </div>
+ </section>
  <footer class="site-footer"><span>杨浦 · 非遗微课</span><span>示例素材与规则绘图用于课堂模拟</span></footer>
 </main>
+<div id="gallery-status" class="gallery-toast" role="status" aria-live="polite"></div>
+<dialog id="save-dialog" class="gallery-dialog" aria-labelledby="save-title">
+ <form id="save-form">
+  <h2 id="save-title">保存作品</h2>
+  <p>给作品取个名字，方便在作品展里找到它。</p>
+  <label for="work-name">作品名称</label>
+  <input id="work-name" maxlength="40" required autocomplete="off">
+  <p id="save-error" role="alert"></p>
+  <div class="actions"><button type="submit" class="primary">确认保存</button><button type="button" class="quiet" id="cancel-save">取消</button></div>
+ </form>
+</dialog>
+<dialog id="show-dialog" class="gallery-dialog show-dialog" aria-labelledby="show-title">
+ <div class="show-header"><h2 id="show-title"></h2><button type="button" class="quiet" id="close-show" autofocus>关闭展示</button></div>
+ <div id="show-art" class="show-art"></div>
+ <p id="show-description"></p>
+ <div class="actions"><a id="show-download" class="quiet">下载图片</a></div>
+</dialog>
 </body>
 </html>
